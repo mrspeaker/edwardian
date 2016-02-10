@@ -11,6 +11,7 @@ class App extends Component {
     super();
 
     this.state = {
+      selected: null,
       running: false
     };
   }
@@ -56,6 +57,9 @@ class App extends Component {
     case "click":
       game.setColor();
       game.render(true);
+      if (game.scene) {
+        this.selectElement(e, game);
+      }
       break;
     default:
       //console.log(e.type);
@@ -63,19 +67,29 @@ class App extends Component {
     }
   };
 
+  selectElement (e, game) {
+    //console.log(Object.assign({}, e))
+    const {clientX, clientY} = e;
+    const selected = game.scene.children[0];
+    const type = selected.constructor.name;
+    switch (type.toLowerCase()) {
+    case "sprite":
+      this.setState({
+        selected: selected.texture.img.src
+      });
+      break;
+    default:
+      console.log("No handling ", type);
+    }
+  }
+
   render () {
     const {game} = this.props;
-    const {running} = this.state;
-
+    const {running, selected} = this.state;
     game.render();
 
     return <div>
       <header></header>
-
-      <Sidebar game={game}
-        running={running}
-        onEditorToggle={this.onEditorToggle}
-        onReset={this.onReset} />
 
       <div ref={"board"}
         onMouseDown={this.onControls}
@@ -83,6 +97,13 @@ class App extends Component {
         onClick={this.onControls}
         onKeyUp={this.onControls}
         ></div>
+
+      <Sidebar game={game}
+        running={running}
+        onEditorToggle={this.onEditorToggle}
+        onReset={this.onReset}
+        selected={selected} />
+      
     </div>;
   }
 }
