@@ -3,7 +3,7 @@ const {
   CanvasRenderer,
   Container,
   Texture,
-  Sprite
+  TileSprite
 } = pop;
 
 const baseURL = "/src/Game";
@@ -31,8 +31,11 @@ class Game {
     this.size = 10;
     this.setColor();
 
-    this.sprite = new Sprite(new Texture(baseURL + "/res/tennis_ball.png"));
-
+    this.sprite = new TileSprite(new Texture(baseURL + "/res/imp.png"), 26, 31);
+    this.sprite._frame = 0;
+    this.sprite.frame.x = 4;
+    this.sprite.pos.y = 50;
+    
     this.addHandlers();
   }
 
@@ -79,7 +82,17 @@ class Game {
     }
     this.time = t;
     this.x += dt * 0.01;
+    this.sprite.scale.x = 2;
+    this.sprite.scale.y = 2;
     this.sprite.pos.x += Math.sin(t / 1000);
+    this.sprite.pos.x = Math.max(0, this.sprite.pos.x);
+
+    var msPerFrame = 60;
+    this.sprite._frame += dt;
+    if (this.sprite._frame > msPerFrame) {
+      this.sprite.frame.x = (this.sprite.frame.x + 1) % 14;
+      this.sprite._frame -= msPerFrame;
+    }
   }
 
   render (force) {
