@@ -1,6 +1,9 @@
 import React from "react";
 import Sidebar from "./Sidebar";
 
+import pop from "pop";
+const {Sprite, TileSprite} = pop;
+
 const {
   Component
 } = React;
@@ -72,13 +75,20 @@ class App extends Component {
     const {clientX, clientY} = e;
     const selected = game.scene.children[0];
     const type = selected.constructor.name;
-    switch (type.toLowerCase()) {
-    case "sprite":
+
+    const isSprite = selected instanceof Sprite;
+    const isTileSprite = selected instanceof TileSprite;
+    if (isTileSprite) {
       this.setState({
         selected: selected.texture.img.src
       });
-      break;
-    default:
+    }
+    else if (isSprite) {
+      this.setState({
+        selected: selected.texture.img.src
+      });
+    }
+    else {
       console.log("No handling ", type);
     }
   }
@@ -103,7 +113,7 @@ class App extends Component {
         onEditorToggle={this.onEditorToggle}
         onReset={this.onReset}
         selected={selected} />
-      
+
     </div>;
   }
 }

@@ -1,4 +1,7 @@
-const pop = require("pop");
+import pop from "pop";
+import env from "./env";
+import Wib from "./Wib";
+
 const {
   CanvasRenderer,
   Container,
@@ -6,11 +9,14 @@ const {
   TileSprite
 } = pop;
 
-const baseURL = "/src/Game";
 
 class Game {
 
   constructor () {
+    this.renderer = new CanvasRenderer(640, 300);
+    this.ctx = this.renderer.ctx;
+    this.scene = new Container();
+
     this.reset();
     this.loopy();
     this.handlers = {};
@@ -31,11 +37,24 @@ class Game {
     this.size = 10;
     this.setColor();
 
-    this.sprite = new TileSprite(new Texture(baseURL + "/res/imp.png"), 26, 31);
-    this.sprite._frame = 0;
-    this.sprite.frame.x = 4;
+    this.scene && this.scene.children.forEach(c => {
+      this.scene.remove(c);
+    });
+
+    this.sprite = new Wib();
     this.sprite.pos.y = 50;
-    
+    this.sprite.scale.x = 2;
+    this.sprite.scale.y = 2;
+
+    this.scene.add(this.sprite);
+
+    for (var i = 0; i < 100; i++) {
+      const w = new Wib();
+      w.pos.x = -50 - Math.random() * 640 | 0;
+      w.pos.y = Math.random() * 300 | 0;
+      this.scene.add(w);
+    }
+
     this.addHandlers();
   }
 
@@ -65,34 +84,23 @@ class Game {
   }
 
   setContainer (container) {
-    if (!this.renderer) {
-      this.renderer = new CanvasRenderer(640, 300);
-      container.appendChild(this.renderer.view);
-      this.ctx = this.renderer.ctx;
-      this.scene = new Container();
-      this.scene.add(this.sprite);
-    } else {
-      // move to container?
-    }
+    container.appendChild(this.renderer.view);
   }
 
   tick (dt, t) {
     if (!this.running) {
       return;
     }
+
     this.time = t;
     this.x += dt * 0.01;
-    this.sprite.scale.x = 2;
-    this.sprite.scale.y = 2;
-    this.sprite.pos.x += Math.sin(t / 1000);
-    this.sprite.pos.x = Math.max(0, this.sprite.pos.x);
 
-    var msPerFrame = 60;
-    this.sprite._frame += dt;
-    if (this.sprite._frame > msPerFrame) {
-      this.sprite.frame.x = (this.sprite.frame.x + 1) % 14;
-      this.sprite._frame -= msPerFrame;
-    }
+    var sprite = this.sprite;
+    sprite.pos.x += Math.sin(t / 1000) * 0.5;
+    //sprite.pos.x = Math.max(0, sprite.pos.x);
+
+    this.scene.update(dt);
+
   }
 
   render (force) {
