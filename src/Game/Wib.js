@@ -9,7 +9,6 @@ const {
 class Wib extends TileSprite {
   constructor () {
     super(new Texture(env.baseURL + "/res/eball.png"), 16, 16);
-
     this._frame = 0;
     this._frameNum = 0;
     this.anims = {
@@ -19,6 +18,7 @@ class Wib extends TileSprite {
     this.anim = "run";
     this.frame.x = 4;
     this.runSpeed = Math.random() * 20 + 80;
+
   }
 
   update (dt) {
@@ -32,9 +32,12 @@ class Wib extends TileSprite {
     }
 
     if (this.anim === "run") {
-      sprite.pos.x += this.runSpeed * 0.0003 * dt;
-      if (sprite.pos.x > 640) {
+      sprite.pos.x += this.runSpeed * Math.sign(this.scale.x) * 0.0003 * dt;
+      if (sprite.pos.x > 640 && Math.sign(this.scale.x) > 0) {
         sprite.pos.x = -16;
+      }
+      if (sprite.pos.x < -32 && Math.sign(this.scale.x) < 0) {
+        sprite.pos.x = 640;
       }
 
       if (Math.random() < 0.01) {
@@ -42,6 +45,12 @@ class Wib extends TileSprite {
         this._frame = 0;
         this._frameNum = 0;
       }
+
+      if (Math.random() < 0.01) {
+        this.scale.x *= -1;
+        this.pos.x -= 16 * this.scale.x; // Oh noes. That's a bit offset.
+      }
+
     } else {
       if (this._frameNum === this.anims.jump.length) {
         this.anim = "run";
